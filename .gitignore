@@ -1,0 +1,15 @@
+# 依赖 / 构建产物（本项目零依赖、无构建，保留以防后续扩展）
+node_modules/
+dist/
+build/
+
+# 系统 / 编辑器
+.DS_Store
+*.log
+*.swp
+.idea/
+.vscode/
+
+# 本地数据 / 临时文件（开发期产物，勿提交）
+_smoke_test.js
+_original.html

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>独孤九剑 · 破招台工作台</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <div class="seal" title="独孤九剑">
+      <svg fill="none" stroke="#f7efe2" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" viewBox="0 0 24 24">
+        <path d="M14 3l6 6-9 9-3-3 9-9"/><path d="M5 19l3 3"/><path d="M11 13l3 3"/>
+      </svg>
+    </div>
+    <div class="title">
+      <h1 class="serif">独孤九剑 · 破招台</h1>
+      <p>以史为鉴，破工作生活的招</p>
+    </div>
+    <div class="topbar">
+      <span class="sync" id="syncBadge"><span class="dot"></span><span id="syncText">已本地保存</span></span>
+      <button class="btn sm" id="openDrawer">数据 · 备份</button>
+    </div>
+  </header>
+
+  <!-- 今日要务 -->
+  <div class="today" id="todayBox">
+    <h2 class="serif">今日要务</h2>
+    <div class="sub">逾期未完成标红 · 昨日未了自动顺延至今日 · 双场景合并视图</div>
+    <div id="todayList"></div>
+    <div class="today-foot" id="todayFoot"></div>
+  </div>
+
+  <!-- Tabs -->
+  <nav class="tabs" id="tabs">
+    <button class="active" data-tab="break">
+      <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewBox="0 0 24 24"><path d="M14 3l6 6-9 9-3-3 9-9"/><path d="M5 19l3 3"/><path d="M11 13l3 3"/></svg>
+      破招台
+    </button>
+    <button data-tab="todo">
+      <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewBox="0 0 24 24"><path d="M4 6h11"/><path d="M4 12h11"/><path d="M4 18h7"/><path d="M18 5l2 2 3-3"/></svg>
+      待办 · 总诀
+    </button>
+    <button data-tab="ledger">
+      <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v8"/><path d="M9 10.5h4.5a1.5 1.5 0 0 1 0 3H10a1.5 1.5 0 0 0 0 3h5"/></svg>
+      收支 · 破剑
+    </button>
+    <button data-tab="habit">
+      <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>
+      习练 · 破气
+    </button>
+    <button data-tab="wisdom">
+      <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewBox="0 0 24 24"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg>
+      心法 · 九剑
+    </button>
+  </nav>
+
+  <!-- 破招台 -->
+  <section class="panel active" id="panel-break">
+    <div class="panel-head">
+      <h3 class="serif">破招台 · 以史为鉴</h3>
+      <span class="hint">录入困境 → 系统依九式方法论给建议招式 → 选招 → 记行动 → 复盘归档。</span>
+    </div>
+    <div class="xinfa-line">「总诀式为纲：先辨招、定式、明约束，再决定今天攻哪一手。把情绪劳动，转成可复盘的招数。」</div>
+    <div class="break-input">
+      <div class="field">
+        <label>这是哪一场景的局？</label>
+        <select id="breakScene">
+          <option value="work">工作场景</option>
+          <option selected value="life">生活场景</option>
+          <option value="both">工作 + 生活交织</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>描述你当下的困局（越具体越好）</label>
+        <textarea id="breakSituation" placeholder="例如：领导当众否定我的方案，还暗示我能力不行；或 亲戚又来借钱，之前借的还没还，不好意思拒绝……" rows="3"></textarea>
+      </div>
+      <button class="btn primary block" id="breakAnalyze">辨 招 · 看 看 用 哪 一 式</button>
+    </div>
+    <div id="suggestBox"></div>
+    <div id="recordForm" style="display:none"></div>
+    <div class="panel-head" style="margin-top:8px"><h3 class="serif" style="font-size:16px">已落招记录</h3><span class="hint" id="breakCount"></span></div>
+    <div class="break-list" id="breakList"></div>
+  </section>
+
+  <!-- 待办 -->
+  <section class="panel" id="panel-todo">
+    <div class="panel-head">
+      <h3 class="serif">待办 · 总诀式</h3>
+      <span class="hint">辨招定式：先辨真伪、定性质、明约束，再决定今天攻哪一手。可按招式 / 场景过滤。</span>
+    </div>
+    <div class="xinfa-line">「不在招式，在识招。面对任何事，先不急着动手，须先辨其真伪、定其性质、明其约束。」</div>
+    <div class="filterbar">
+      <div class="seg" id="todoSceneSeg">
+        <button class="on" data-scene="all">全部</button>
+        <button data-scene="work">工作</button>
+        <button data-scene="life">生活</button>
+      </div>
+      <select id="todoMoveFilter"><option value="all">按招式筛选：全部</option></select>
+    </div>
+    <div class="form-grid">
+      <div class="field" style="grid-column:1 / -1">
+        <label>事项</label>
+        <input id="todoTitle" placeholder="今天要破的哪一招？">
+      </div>
+      <div class="field">
+        <label>场景</label>
+        <select id="todoScene"><option value="work">工作</option><option selected value="life">生活</option></select>
+      </div>
+      <div class="field">
+        <label>归类招式</label>
+        <select id="todoMove"><option value>不归类</option></select>
+      </div>
+      <div class="field">
+        <label>优先级</label>
+        <select id="todoPriority"><option value="高">高</option><option selected value="中">中</option><option value="低">低</option></select>
+      </div>
+      <div class="field">
+        <label>截止日期</label>
+        <input id="todoDue" type="date">
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <button class="btn primary" id="addTodo">添 入 行 囊</button>
+      </div>
+    </div>
+    <div class="stats" id="todoStats"></div>
+    <div class="list" id="todoList"></div>
+  </section>
+
+  <!-- 收支 -->
+  <section class="panel" id="panel-ledger">
+    <div class="panel-head">
+      <h3 class="serif">收支 · 破剑式</h3>
+      <span class="hint">破局：不与其争锋芒，直取其不得不救之处——先看清钱去了哪。可按场景过滤。</span>
+    </div>
+    <div class="filterbar">
+      <div class="seg" id="ledgerSceneSeg">
+        <button class="on" data-scene="all">全部</button>
+        <button data-scene="work">工作</button>
+        <button data-scene="life">生活</button>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label>类型</label>
+        <select id="lgType"><option value="支出">支出</option><option value="收入">收入</option></select>
+      </div>
+      <div class="field">
+        <label>场景</label>
+        <select id="lgScene"><option value="work">工作</option><option selected value="life">生活</option></select>
+      </div>
+      <div class="field">
+        <label>金额（¥）</label>
+        <input id="lgAmount" inputmode="decimal" min="0" placeholder="0.00" step="0.01" type="number">
+      </div>
+      <div class="field">
+        <label>分类</label>
+        <input id="lgCat" placeholder="餐饮 / 交通 / 工资…">
+      </div>
+      <div class="field">
+        <label>日期</label>
+        <input id="lgDate" type="date">
+      </div>
+      <div class="field" style="grid-column:1 / -1">
+        <label>备注</label>
+        <input id="lgNote" placeholder="可留空">
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <button class="btn primary" id="addLedger">记 一 笔</button>
+      </div>
+    </div>
+    <div class="stats" id="ledgerStats"></div>
+    <div id="budgetWrap"></div>
+    <div class="chart-row" id="ledgerChart"></div>
+    <div class="list" id="ledgerList"></div>
+  </section>
+
+  <!-- 习练 -->
+  <section class="panel" id="panel-habit">
+    <div class="panel-head">
+      <h3 class="serif">习练 · 破气式</h3>
+      <span class="hint">顺应规律，游刃有余：把自律变成节奏，而非对抗。</span>
+    </div>
+    <div class="xinfa-line">「气者势也。识势、顺势、借势——把坚持交给时间，而非意志。」</div>
+    <div class="form-grid">
+      <div class="field" style="grid-column:1 / -1">
+        <label>习惯名称</label>
+        <input id="habitName" placeholder="如：晨间规划 / 读书30分 / 不熬夜">
+      </div>
+      <div class="field">
+        <label>关联招式（可选）</label>
+        <select id="habitMove"><option value>不关联</option></select>
+      </div>
+      <div class="field">
+        <label>&nbsp;</label>
+        <button class="btn primary" id="addHabit">立 一 念</button>
+      </div>
+    </div>
+    <div class="list" id="habitList"></div>
+  </section>
+
+  <!-- 心法 -->
+  <section class="panel" id="panel-wisdom">
+    <div class="panel-head">
+      <h3 class="serif">每日心法 · 独孤九剑</h3>
+      <span class="hint">内容提取自你的「剑史智库」知识库 · L1 破招方法论。含白话转译与识别信号。</span>
+    </div>
+    <div class="today-xin" id="todayXin"></div>
+    <div id="moveList"></div>
+  </section>
+</div>
+
+<!-- 抽屉 -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer">
+  <button class="btn ghost sm close" id="closeDrawer">✕</button>
+  <h4 class="serif">数据 · 备份与恢复</h4>
+  <div class="grp">
+    <div class="gl">本地存储状态</div>
+    <div class="note" id="storageNote">数据保存在本机浏览器 localStorage，关闭页面不丢失。</div>
+  </div>
+  <div class="grp">
+    <div class="gl">备份导出</div>
+    <button class="btn" id="exportBtn">导出 JSON 备份（明文）</button>
+    <button class="btn" id="exportEncBtn">导出加密备份（需密码）</button>
+    <button class="btn" id="exportEventsBtn">导出埋点数据（JSON/CSV）</button>
+    <button class="btn" id="importBtn">导入恢复（不限条数）</button>
+    <input accept="application/json,.json,.dg9j" id="importFile" type="file" style="display:none">
+  </div>
+  <div class="grp">
+    <div class="gl">示例内容包（R6）</div>
+    <button class="btn" id="loadDemoBtn">载入双场景示例</button>
+    <div class="note">首启或需要时，一键载入职场破招 / 生活破招示例，降低冷启动门槛。</div>
+  </div>
+  <div class="grp">
+    <div class="gl">演示数据</div>
+    <button class="btn danger" id="clearDemoBtn">清空全部数据</button>
+  </div>
+  <div class="grp">
+    <div class="note">提示：新增满 20 条会提醒你导出备份。导入时按条目 ID 合并，不会丢已有数据。加密备份用 AES-GCM（Web Crypto，零依赖），忘记密码将无法还原。</div>
+  </div>
+</aside>
+
+<!-- 横幅 -->
+<div class="banner" id="banner"><span id="bannerText"></span><span class="b-close" id="bannerClose">✕</span></div>
+
+<!-- 按依赖顺序加载（classic script 共享全局作用域，无需打包工具） -->
+<script src="src/data.js"></script>
+<script src="src/util.js"></script>
+<script src="src/charts.js"></script>
+<script src="src/store.js"></script>
+<script src="src/ui.js"></script>
+<script src="src/pages/today.js"></script>
+<script src="src/pages/todo.js"></script>
+<script src="src/pages/ledger.js"></script>
+<script src="src/pages/habit.js"></script>
+<script src="src/pages/wisdom.js"></script>
+<script src="src/pages/break.js"></script>
+<script src="src/app.js"></script>
+</body>
+</html>
